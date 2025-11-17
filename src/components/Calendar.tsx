@@ -219,24 +219,43 @@ export default function Calendar({ onDateSelect, selectedRange, onDateClick }: C
           }
         `}</style>
         
-        <DayPicker
-          mode={onDateClick ? "single" : "range"}
-          selected={onDateClick ? undefined : selectedRange}
-          onSelect={onDateClick ? undefined : onDateSelect}
-          fromDate={seasonStart}
-          toDate={seasonEnd}
-          numberOfMonths={isMobile ? 1 : 2}
-          classNames={classNames}
-          showOutsideDays={true}
-          fixedWeeks={true}
-          disabled={(date) => getDayStatus(date).isPastDate || !getDayStatus(date).isAvailable}
-          components={{
-            Day: (props) => <CustomDay date={props.day.date} />,
-          }}
-          formatters={{
-            formatCaption: (date) => format(date, 'MMMM yyyy'),
-          }}
-        />
+        {onDateClick ? (
+          <DayPicker
+            mode="single"
+            fromDate={seasonStart}
+            toDate={seasonEnd}
+            numberOfMonths={isMobile ? 1 : 2}
+            classNames={classNames}
+            showOutsideDays={true}
+            fixedWeeks={true}
+            disabled={(date) => getDayStatus(date).isPastDate || !getDayStatus(date).isAvailable}
+            components={{
+              Day: (props) => <CustomDay date={props.day.date} />,
+            }}
+            formatters={{
+              formatCaption: (date) => format(date, 'MMMM yyyy'),
+            }}
+          />
+        ) : (
+          <DayPicker
+            mode="range"
+            selected={selectedRange}
+            onSelect={onDateSelect}
+            fromDate={seasonStart}
+            toDate={seasonEnd}
+            numberOfMonths={isMobile ? 1 : 2}
+            classNames={classNames}
+            showOutsideDays={true}
+            fixedWeeks={true}
+            disabled={(date) => getDayStatus(date).isPastDate || !getDayStatus(date).isAvailable}
+            components={{
+              Day: (props) => <CustomDay date={props.day.date} />,
+            }}
+            formatters={{
+              formatCaption: (date) => format(date, 'MMMM yyyy'),
+            }}
+          />
+        )}
       </div>
 
       {/* Pricing Summary */}
