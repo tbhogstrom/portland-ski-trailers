@@ -97,7 +97,7 @@ export default function BookingForm() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className={`grid gap-8 ${selectedRange?.from && selectedRange?.to ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
         {/* Calendar Section */}
         <div>
           <Calendar 
@@ -106,8 +106,9 @@ export default function BookingForm() {
           />
         </div>
 
-        {/* Booking Details Section */}
-        <div className="space-y-6">
+        {/* Booking Details Section - Only show when dates are selected */}
+        {selectedRange?.from && selectedRange?.to && (
+          <div className="space-y-6">
           {/* Price Summary */}
           {selectedRange?.from && selectedRange?.to && pricing && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-6">
@@ -230,7 +231,8 @@ export default function BookingForm() {
               </div>
             )}
           </form>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
