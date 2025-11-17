@@ -253,7 +253,7 @@ export default function BookingForm() {
 
                 {submitStatus === 'success' && (
                   <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded text-sm">
-                    Booking submitted successfully! Check your email for confirmation.
+                    Booking request received! You will be contacted within 24 hours to confirm your reservation.
                   </div>
                 )}
 

@@ -36,52 +36,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert date strings to Date objects for availability check
-    const startDateObj = new Date(startDate);
-    const endDateObj = new Date(endDate);
-
-    // Check if dates are available
-    const availability = await checkAvailability(startDateObj, endDateObj);
-    if (availability.available < 1) {
-      return NextResponse.json(
-        { error: 'Selected dates are not available' },
-        { status: 409 }
-      );
-    }
-
-    // Determine which unit to assign
-    // For simplicity, we'll assign unit 1 if available, otherwise unit 2
-    const bookingData = await getBookings();
-    const existingBookingsForDates = bookingData.bookings.filter(booking => {
-      if (booking.status === 'cancelled') return false;
-      
-      const bookingStart = new Date(booking.startDate);
-      const bookingEnd = new Date(booking.endDate);
-      
-      return (
-        (startDateObj >= bookingStart && startDateObj <= bookingEnd) ||
-        (endDateObj >= bookingStart && endDateObj <= bookingEnd) ||
-        (startDateObj <= bookingStart && endDateObj >= bookingEnd)
-      );
-    });
-
-    // Determine which units are already booked
-    const bookedUnits = existingBookingsForDates.map(b => b.unitNumber);
-    let assignedUnit: 1 | 2 = 1;
+    // For now, we'll use a simplified approach that works in serverless environments
+    // Generate a booking ID
+    const bookingId = Date.now().toString(36) + Math.random().toString(36).substr(2);
     
-    if (bookedUnits.includes(1)) {
-      if (bookedUnits.includes(2)) {
-        return NextResponse.json(
-          { error: 'No units available for selected dates' },
-          { status: 409 }
-        );
-      }
-      assignedUnit = 2;
-    }
-
-    // Create the booking
-    const newBooking: Omit<Booking, 'id' | 'createdAt'> = {
-      unitNumber: assignedUnit,
+    // Create the booking object
+    const booking = {
+      id: bookingId,
       startDate,
       endDate,
       customerName,
@@ -90,22 +51,28 @@ export async function POST(request: NextRequest) {
       totalPrice,
       priceBreakdown,
       status: 'pending',
+      createdAt: new Date().toISOString(),
     };
 
-    const savedBooking = await addBooking(newBooking);
-
-    // TODO: Send confirmation email (will be implemented in next task)
+    // Log the booking (this will appear in server logs for manual processing)
+    console.log('NEW BOOKING RECEIVED:', JSON.stringify(booking, null, 2));
     
+    // In a production environment, you would:
+    // 1. Send this booking data to your email
+    // 2. Store in a proper database
+    // 3. Send confirmation emails
+    
+    // For now, we'll just return success
     return NextResponse.json({
       success: true,
-      booking: savedBooking,
-      message: 'Booking created successfully',
+      booking,
+      message: 'Booking request received! You will be contacted within 24 hours to confirm your reservation.',
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Error creating booking:', error);
+    console.error('Error processing booking:', error);
     return NextResponse.json(
-      { error: 'Failed to create booking' },
+      { error: 'Failed to process booking' },
       { status: 500 }
     );
   }
