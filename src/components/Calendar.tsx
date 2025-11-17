@@ -7,11 +7,12 @@ import { getDayPrice, getDayType } from '@/lib/bookings';
 import { AvailabilityResponse } from '@/types/booking';
 
 interface CalendarProps {
-  onDateSelect: (dateRange: DateRange | undefined) => void;
+  onDateSelect?: (dateRange: DateRange | undefined) => void;
   selectedRange?: DateRange;
+  onDateClick?: (date: Date) => void;
 }
 
-export default function Calendar({ onDateSelect, selectedRange }: CalendarProps) {
+export default function Calendar({ onDateSelect, selectedRange, onDateClick }: CalendarProps) {
   const [availability, setAvailability] = useState<{ [date: string]: number }>({});
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -81,6 +82,12 @@ export default function Calendar({ onDateSelect, selectedRange }: CalendarProps)
   const CustomDay = ({ date }: { date: Date }) => {
     const status = getDayStatus(date);
     
+    const handleDayClick = () => {
+      if (status.isAvailable && onDateClick) {
+        onDateClick(date);
+      }
+    };
+    
     if (status.isPastDate) {
       return (
         <div className="flex flex-col items-center justify-center w-full h-full min-h-[44px] p-1 text-gray-300 cursor-not-allowed">
@@ -102,12 +109,15 @@ export default function Calendar({ onDateSelect, selectedRange }: CalendarProps)
     };
 
     return (
-      <div className={`
-        flex flex-col items-center justify-center w-full h-full min-h-[44px] p-1 
-        rounded-lg transition-all duration-200 hover:shadow-md
-        ${getAvailabilityColor()} ${getBorderColor()}
-        ${status.isAvailable ? 'hover:scale-105 cursor-pointer' : 'cursor-not-allowed opacity-60'}
-      `}>
+      <div 
+        onClick={handleDayClick}
+        className={`
+          flex flex-col items-center justify-center w-full h-full min-h-[44px] p-1 
+          rounded-lg transition-all duration-200 hover:shadow-md
+          ${getAvailabilityColor()} ${getBorderColor()}
+          ${status.isAvailable ? 'hover:scale-105 cursor-pointer' : 'cursor-not-allowed opacity-60'}
+        `}
+      >
         <div className={`font-medium ${isToday(date) ? 'text-blue-700 font-bold' : ''}`}>
           {date.getDate()}
         </div>
@@ -210,9 +220,9 @@ export default function Calendar({ onDateSelect, selectedRange }: CalendarProps)
         `}</style>
         
         <DayPicker
-          mode="range"
-          selected={selectedRange}
-          onSelect={onDateSelect}
+          mode={onDateClick ? "single" : "range"}
+          selected={onDateClick ? undefined : selectedRange}
+          onSelect={onDateClick ? undefined : onDateSelect}
           fromDate={seasonStart}
           toDate={seasonEnd}
           numberOfMonths={isMobile ? 1 : 2}
