@@ -1,5 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkAvailability } from '@/lib/bookings-server';
+import { list } from '@vercel/blob';
+import { eachDayOfInterval, format, parseISO } from 'date-fns';
+import { BookingData, AvailabilityResponse } from '@/types/booking';
+
+async function getBookingsFromBlob(): Promise<BookingData> {
+  try {
+    const { blobs } = await list({ prefix: 'bookings.json' });
+    if (blobs.length === 0) {
+      return { bookings: [] };
+    }
+    
+    const response = await fetch(blobs[0].url);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching bookings from blob:', error);
+    return { bookings: [] };
+  }
+}
+
+async function checkAvailability(
+  startDate: Date, 
+  endDate: Date
+): Promise<AvailabilityResponse> {
+  const bookingData = await getBookingsFromBlob();
+  const requestedDays = eachDayOfInterval({ start: startDate, end: endDate });
+  
+  const availability: { [date: string]: number } = {};
+  
+  for (const day of requestedDays) {
+    const dateStr = format(day, 'yyyy-MM-dd');
+    
+    // Count confirmed bookings for this date
+    const bookedUnits = bookingData.bookings.filter(booking => {
+      if (booking.status === 'cancelled') return false;
+      
+      const bookingStart = parseISO(booking.startDate);
+      const bookingEnd = parseISO(booking.endDate);
+      
+      return day >= bookingStart && day <= bookingEnd;
+    }).length;
+    
+    availability[dateStr] = Math.max(0, 2 - bookedUnits);
+  }
+  
+  // Return the minimum availability across all requested days
+  const minAvailable = Math.min(...Object.values(availability));
+  
+  return {
+    available: minAvailable,
+    dates: availability,
+  };
+}
 
 export async function GET(request: NextRequest) {
   try {
