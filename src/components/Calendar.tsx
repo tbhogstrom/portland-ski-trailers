@@ -76,24 +76,19 @@ export default function Calendar({ onDateSelect, selectedRange }: CalendarProps)
     return format(month, 'MMMM yyyy');
   };
 
-  const CustomDay = ({ date, displayMonth }: { date: Date; displayMonth: Date }) => {
+  const formatDay = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const availableUnits = availability[dateStr] ?? 0;
     const price = getDayPrice(date);
-    const isCurrentMonth = date.getMonth() === displayMonth.getMonth();
-    
-    if (!isCurrentMonth) {
-      return <div className="text-gray-300">{date.getDate()}</div>;
-    }
 
     return (
-      <div className="flex flex-col items-center p-1 min-h-[60px]">
+      <div className="flex flex-col items-center justify-center w-full h-full min-h-[60px] p-1">
         <div className="font-medium">{date.getDate()}</div>
         <div className="text-xs text-gray-600">${price}</div>
-        <div className="text-xs">
-          {availableUnits === 0 && <span className="text-red-600">Sold Out</span>}
-          {availableUnits === 1 && <span className="text-orange-600">1 Left</span>}
-          {availableUnits === 2 && <span className="text-green-600">Available</span>}
+        <div className="text-xs mt-1">
+          {availableUnits === 0 && <span className="text-red-600 font-medium">Sold Out</span>}
+          {availableUnits === 1 && <span className="text-orange-600 font-medium">1 Left</span>}
+          {availableUnits === 2 && <span className="text-green-600 font-medium">Available</span>}
         </div>
       </div>
     );
@@ -147,11 +142,7 @@ export default function Calendar({ onDateSelect, selectedRange }: CalendarProps)
         }}
         formatters={{
           formatCaption,
-        }}
-        components={{
-          DayContent: ({ date, displayMonth }) => (
-            <CustomDay date={date} displayMonth={displayMonth} />
-          ),
+          formatDay,
         }}
         className="border rounded-lg p-4 bg-white"
         styles={{
