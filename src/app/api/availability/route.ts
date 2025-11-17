@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkAvailability } from '@/lib/bookings';
-import { eachDayOfInterval, format } from 'date-fns';
+import { checkAvailability } from '@/lib/bookings-server';
 
 export async function GET(request: NextRequest) {
   try {
