@@ -76,7 +76,7 @@ export default function Calendar({ onDateSelect, selectedRange }: CalendarProps)
     return format(month, 'MMMM yyyy');
   };
 
-  const formatDay = (date: Date) => {
+  const CustomDay = ({ date }: { date: Date }) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const availableUnits = availability[dateStr] ?? 0;
     const price = getDayPrice(date);
@@ -142,7 +142,9 @@ export default function Calendar({ onDateSelect, selectedRange }: CalendarProps)
         }}
         formatters={{
           formatCaption,
-          formatDay,
+        }}
+        components={{
+          Day: (props) => <CustomDay date={props.day.date} />,
         }}
         className="border rounded-lg p-4 bg-white"
         styles={{
