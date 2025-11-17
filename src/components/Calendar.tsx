@@ -90,77 +90,84 @@ export default function Calendar({ onDateSelect, selectedRange, onDateClick }: C
     
     if (status.isPastDate) {
       return (
-        <div className="flex flex-col items-center justify-center w-full h-full min-h-[44px] p-1 text-gray-300 cursor-not-allowed">
-          <div className="text-sm">{date.getDate()}</div>
-        </div>
+        <button 
+          disabled
+          className="w-full aspect-square flex flex-col items-center justify-center p-2 text-gray-300 cursor-not-allowed bg-gray-50 rounded-lg min-h-[80px]"
+        >
+          <div className="text-sm font-medium">{date.getDate()}</div>
+          <div className="text-xs mt-1">Past</div>
+        </button>
       );
     }
 
     const getAvailabilityColor = () => {
-      if (status.availableUnits === 0) return 'text-red-600 bg-red-50';
-      if (status.availableUnits === 1) return 'text-orange-600 bg-orange-50';
-      return 'text-green-600 bg-green-50';
+      if (status.availableUnits === 0) return 'text-red-700 bg-red-50 border-red-200';
+      if (status.availableUnits === 1) return 'text-orange-700 bg-orange-50 border-orange-200';
+      return 'text-green-700 bg-green-50 border-green-200';
     };
 
     const getBorderColor = () => {
-      if (isToday(date)) return 'ring-2 ring-blue-500';
-      if (status.isWeekend) return 'ring-1 ring-blue-200';
+      if (isToday(date)) return 'ring-2 ring-blue-500 ring-offset-1';
+      if (status.isWeekend) return 'ring-1 ring-blue-300';
       return '';
     };
 
     return (
-      <div 
+      <button 
         onClick={handleDayClick}
+        disabled={!status.isAvailable}
         className={`
-          flex flex-col items-center justify-center w-full h-full min-h-[44px] p-1 
-          rounded-lg transition-all duration-200 hover:shadow-md
+          w-full aspect-square flex flex-col items-center justify-center p-2 
+          rounded-lg border transition-all duration-200 min-h-[80px]
           ${getAvailabilityColor()} ${getBorderColor()}
-          ${status.isAvailable ? 'hover:scale-105 cursor-pointer' : 'cursor-not-allowed opacity-60'}
+          ${status.isAvailable 
+            ? 'hover:shadow-lg hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500' 
+            : 'cursor-not-allowed opacity-60'
+          }
         `}
       >
-        <div className={`font-medium ${isToday(date) ? 'text-blue-700 font-bold' : ''}`}>
+        <div className={`text-sm font-bold ${isToday(date) ? 'text-blue-600' : ''}`}>
           {date.getDate()}
         </div>
         
-        <div className="text-xs font-medium mt-1">
+        <div className="text-xs font-semibold mt-1">
           ${status.price}
         </div>
         
-        <div className="text-xs mt-1 font-medium">
+        <div className="text-xs mt-0.5 font-medium leading-tight">
           {status.statusLabel}
         </div>
         
         {status.isWeekend && (
-          <div className="text-xs text-blue-600 font-medium">
+          <div className="text-xs text-blue-600 font-semibold mt-0.5">
             Weekend
           </div>
         )}
-      </div>
+      </button>
     );
   };
 
   const classNames = {
     root: "rdp-root",
-    months: "rdp-months flex flex-col md:flex-row gap-4",
-    month: "rdp-month flex-1",
+    months: "rdp-months flex flex-col lg:flex-row gap-6",
+    month: "rdp-month w-full",
     month_caption: "rdp-month_caption flex items-center justify-between mb-4 px-2",
-    caption_label: "rdp-caption_label text-lg font-semibold text-gray-800",
+    caption_label: "rdp-caption_label text-xl font-bold text-gray-800",
     nav: "rdp-nav flex gap-2",
-    button_previous: "rdp-button_previous p-2 rounded-lg hover:bg-gray-100 transition-colors",
-    button_next: "rdp-button_next p-2 rounded-lg hover:bg-gray-100 transition-colors",
-    month_grid: "rdp-month_grid w-full",
-    weekdays: "rdp-weekdays",
-    weekday: "rdp-weekday text-center text-sm font-medium text-gray-600 py-2",
-    weeks: "rdp-weeks",
+    button_previous: "rdp-button_previous p-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-800",
+    button_next: "rdp-button_next p-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-800",
+    month_grid: "rdp-month_grid w-full border-separate border-spacing-1",
+    weekdays: "rdp-weekdays grid grid-cols-7 gap-1 mb-2",
+    weekday: "rdp-weekday text-center text-sm font-bold text-gray-700 py-3 bg-gray-100 rounded-lg",
+    weeks: "rdp-weeks grid gap-1",
     week: "rdp-week grid grid-cols-7 gap-1",
-    day: "rdp-day p-1",
-    day_button: `rdp-day_button w-full min-h-[44px] text-center rounded-lg border-2 border-transparent 
-                 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`,
-    selected: "rdp-selected ring-2 ring-blue-500 bg-blue-500 text-white",
-    range_start: "rdp-range_start bg-blue-500 text-white rounded-l-lg",
-    range_middle: "rdp-range_middle bg-blue-100",
-    range_end: "rdp-range_end bg-blue-500 text-white rounded-r-lg",
-    disabled: "rdp-disabled cursor-not-allowed opacity-30",
+    day: "rdp-day",
+    day_button: "rdp-day_button w-full h-full",
+    selected: "rdp-selected",
+    range_start: "rdp-range_start",
+    range_middle: "rdp-range_middle",
+    range_end: "rdp-range_end", 
+    disabled: "rdp-disabled",
     hidden: "rdp-hidden invisible",
   };
 
@@ -205,7 +212,7 @@ export default function Calendar({ onDateSelect, selectedRange, onDateClick }: C
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-lg border shadow-sm p-4 md:p-6">
+      <div className="bg-white rounded-xl border shadow-lg p-6">
         <style jsx>{`
           .rdp-root {
             --rdp-accent-color: #2563eb;
@@ -214,8 +221,32 @@ export default function Calendar({ onDateSelect, selectedRange, onDateClick }: C
             font-family: inherit;
           }
           
-          .rdp-day_button:hover:not(.rdp-disabled) {
-            background-color: #f3f4f6;
+          .rdp-month_grid {
+            display: grid;
+            gap: 4px;
+          }
+          
+          .rdp-weekdays {
+            display: grid !important;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 8px;
+          }
+          
+          .rdp-weeks {
+            display: grid !important;
+            gap: 4px;
+          }
+          
+          .rdp-week {
+            display: grid !important;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+          }
+          
+          .rdp-day {
+            display: flex;
+            align-items: stretch;
           }
         `}</style>
         
