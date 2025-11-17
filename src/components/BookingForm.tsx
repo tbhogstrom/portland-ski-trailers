@@ -92,7 +92,9 @@ export default function BookingForm() {
         });
         setShowPopup(false);
       } else {
-        throw new Error('Booking submission failed');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Booking submission failed:', response.status, errorData);
+        throw new Error(errorData.error || 'Booking submission failed');
       }
     } catch (error) {
       console.error('Error submitting booking:', error);

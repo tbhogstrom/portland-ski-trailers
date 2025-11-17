@@ -29,7 +29,16 @@ export async function getBookings(): Promise<BookingData> {
 }
 
 export async function saveBookings(bookingData: BookingData): Promise<void> {
-  await fs.writeFile(BOOKINGS_FILE, JSON.stringify(bookingData, null, 2));
+  try {
+    // Ensure data directory exists
+    const dataDir = path.dirname(BOOKINGS_FILE);
+    await fs.mkdir(dataDir, { recursive: true });
+    
+    await fs.writeFile(BOOKINGS_FILE, JSON.stringify(bookingData, null, 2));
+  } catch (error) {
+    console.error('Error saving bookings:', error);
+    throw error;
+  }
 }
 
 export async function addBooking(booking: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking> {
